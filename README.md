@@ -1,6 +1,67 @@
-# SysPulse WebSocket SSH Server
+# SysPulse WebSocket Server
 
-Server WebSocket untuk koneksi SSH yang aman dan efisien.
+WebSocket SSH server untuk aplikasi SysPulse.
+
+## Deploy ke Heroku
+
+Berikut langkah-langkah untuk melakukan deploy aplikasi WebSocket server ini ke Heroku:
+
+### Cara Manual
+
+1. Pastikan Anda sudah menginstall [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+2. Login ke Heroku CLI:
+   ```
+   heroku login
+   ```
+3. Buat aplikasi baru di Heroku:
+   ```
+   heroku create syspulse-websocket
+   ```
+4. Deploy aplikasi ke Heroku:
+   ```
+   git push heroku main
+   ```
+5. Pastikan bahwa minimal 1 instance aplikasi berjalan:
+   ```
+   heroku ps:scale web=1
+   ```
+6. Buka aplikasi:
+   ```
+   heroku open
+   ```
+
+### Menggunakan GitHub Actions
+
+1. Pada repository GitHub, tambahkan secrets berikut:
+   - `HEROKU_API_KEY`: API key dari akun Heroku Anda
+   - `HEROKU_EMAIL`: Email yang digunakan untuk akun Heroku
+
+2. Push kode ke branch main, dan GitHub Actions akan otomatis melakukan deploy ke Heroku.
+
+## Variabel Lingkungan
+
+Tambahkan variabel lingkungan berikut di Heroku:
+
+- `CORS_ORIGIN`: URL aplikasi frontend Anda
+- `NODE_ENV`: `production` untuk environment produksi
+
+Untuk menambahkan variabel lingkungan:
+```
+heroku config:set CORS_ORIGIN=https://your-frontend-app.com
+heroku config:set NODE_ENV=production
+```
+
+## Memeriksa Log
+
+Untuk melihat log aplikasi yang berjalan di Heroku:
+```
+heroku logs --tail
+```
+
+## Catatan Penting
+
+- Heroku mematikan aplikasi setelah 30 menit tidak aktif. Gunakan layanan seperti [Kaffeine](https://kaffeine.herokuapp.com/) untuk menjaga aplikasi tetap aktif.
+- WebSocket di Heroku memiliki batas waktu koneksi 55 detik. Pastikan implementasi reconnect di client untuk mengatasi ini.
 
 ## Konfigurasi untuk Local dan Deployment
 

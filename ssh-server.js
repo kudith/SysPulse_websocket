@@ -1481,7 +1481,7 @@ app.get("/health", (req, res) => {
 
 // Start the server
 const PORT = process.env.PORT || process.env.SSH_SERVER_PORT || 3001;
-const HOST = process.env.SSH_SERVER_HOST || "0.0.0.0";
+const HOST = process.env.HOST || "0.0.0.0";
 
 server.listen(PORT, HOST, () => {
   console.log(`SSH Server listening on ${HOST}:${PORT}`);

@@ -11,12 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      # Step to install Heroku CLI
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
       
-      # Deploy to Heroku using the Heroku Deploy action
+      - name: Add Heroku Remote
+        run: git remote add heroku https://git.heroku.com/syspulse-websocket.git
+      
       - uses: akhileshns/heroku-deploy@v3.12.13
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}

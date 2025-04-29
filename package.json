@@ -1,0 +1,22 @@
+{
+  "name": "syspulse_websocket",
+  "version": "1.0.0",
+  "main": "ssh-server.js",
+  "scripts": {
+    "start": "node ssh-server.js",
+    "dev": "nodemon ssh-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "WebSocket SSH server for SysPulse",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

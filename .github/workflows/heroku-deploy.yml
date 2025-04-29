@@ -3,15 +3,22 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # atau master, tergantung pada branch utama Anda
+      - main  # or master, depending on your primary branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      
+      # Step to install Heroku CLI
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+      
+      # Deploy to Heroku using the Heroku Deploy action
       - uses: akhileshns/heroku-deploy@v3.12.13
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "syspulse-websocket"  # ganti dengan nama app Heroku Anda
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "syspulse-websocket"  # Replace with your Heroku app name
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}

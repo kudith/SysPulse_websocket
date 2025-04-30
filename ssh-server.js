@@ -13,8 +13,8 @@ const io = new Server(server, {
   cors: {
     origin: process.env.CORS_ORIGIN ||
       (process.env.NODE_ENV === "production"
-        ? "https://your-production-domain.com"
-        : "http://localhost:3000"),
+        ? process.env.CORS_ORIGIN
+        : process.env.CORS_ORIGIN_DEV),
     methods: ["GET", "POST"],
     credentials: true,
   },

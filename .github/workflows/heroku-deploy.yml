@@ -10,16 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
+      # Add a step to install the Heroku CLI
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-      
-      - name: Add Heroku Remote
-        run: git remote add heroku https://git.heroku.com/syspulse-websocket.git
-      
+
       - uses: akhileshns/heroku-deploy@v3.12.13
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "syspulse-websocket"  # Replace with your Heroku app name
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}

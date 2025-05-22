@@ -1,6 +1,62 @@
-# SysPulse WebSocket Server
+# SysPulse WebSocket SSH Server
 
-WebSocket SSH server untuk aplikasi SysPulse.
+Server WebSocket untuk koneksi SSH dari aplikasi SysPulse.
+
+## Pengujian Lokal
+
+1. Install dependencies:
+   ```
+   npm install
+   ```
+
+2. Buat file `.env` dengan konfigurasi berikut:
+   ```
+   PORT=3001
+   HOST=0.0.0.0
+   ```
+
+3. Jalankan server:
+   ```
+   npm start
+   ```
+
+4. Server akan berjalan di http://localhost:3001 dan siap menerima koneksi WebSocket dari frontend yang berjalan di http://localhost:3000
+
+## Deployment ke Production
+
+1. Buat file `.env` dengan konfigurasi:
+   ```
+   PORT=3001 # atau port yang sesuai dengan lingkungan deployment
+   HOST=0.0.0.0
+   NODE_ENV=production
+   PRODUCTION_URL=https://syspulse.yourdomain.com # ganti dengan URL frontend Anda
+   ```
+
+2. Alternatif, Anda bisa menggunakan `CORS_ORIGIN` sebagai gantinya:
+   ```
+   CORS_ORIGIN=https://syspulse.yourdomain.com
+   ```
+
+3. Jalankan server:
+   ```
+   npm start
+   ```
+
+## Variabel Environment
+
+- `PORT`: Port tempat server berjalan (default: 3001)
+- `HOST`: Host binding (default: 0.0.0.0)
+- `NODE_ENV`: Environment ('development' atau 'production')
+- `PRODUCTION_URL`: URL frontend pada environment production
+- `CORS_ORIGIN`: URL yang diizinkan untuk koneksi cross-origin (mengesampingkan PRODUCTION_URL)
+
+## Koneksi Client ke Server
+
+Di aplikasi client (frontend), konfigurasikan koneksi WebSocket ke:
+- Local: `ws://localhost:3001`
+- Production: `wss://your-websocket-server.com`
+
+Pastikan protokol sesuai (ws atau wss) tergantung pada apakah Anda menggunakan HTTP atau HTTPS.
 
 ## Deploy ke Heroku
 

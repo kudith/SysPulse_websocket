@@ -1026,14 +1026,15 @@ io.on("connection", (socket) => {
     }
 
     const { command, background = false } = data; // Extract background flag from request
-    if (!command) {
-      console.warn(`${socket.id}: Missing command to execute`);
-      if (typeof callback === "function") {
-        callback({ error: "Missing command to execute", output: "" });
-      }
-      return;
-    }
 
+    // Check if this is a kill command that needs special handling
+    if (command.match(/^(sudo\s+)?kill\s+/)) {
+      if (processKillCommand(command, socket, sessionId, connection)) {
+        return; // Command handled by processKillCommand
+      }
+    }
+    
+    // Continue with normal command processing
     console.log(`${socket.id}: Queueing ${background ? 'background' : 'foreground'} command: ${command}`);
 
     // Apply command throttling
@@ -1579,3 +1580,87 @@ process.on("SIGINT", () => {
     process.exit(0);
   });
 });
+
+// Validasi kill command dan cek hasilnya
+const processKillCommand = (command, socket, sessionId, connection) => {
+  const killMatch = command.match(/^(sudo\s+)?kill\s+(-[0-9]+)\s+([0-9]+)$/);
+  if (killMatch) {
+    const isSudo = !!killMatch[1];
+    const signal = parseInt(killMatch[2].substring(1));
+    const pid = parseInt(killMatch[3]);
+    
+    console.log(`${socket.id}: Processing kill command for PID ${pid} with signal ${signal}`);
+    
+    cmdQueue.add({
+      connection,
+      command,
+      socket,
+      socketId: socket.id,
+      sessionId,
+      callback: (result) => {
+        if (result.error) {
+          console.error(`${socket.id}: Kill command failed: ${result.error}`);
+          
+          // Check if error suggests permission issues
+          const needsElevation = result.errorOutput && 
+                               (result.errorOutput.includes('Operation not permitted') || 
+                                result.errorOutput.includes('Permission denied'));
+          
+          socket.emit("command-error", {
+            command,
+            error: result.error,
+            needsElevation
+          });
+          
+          // Jika butuh elevasi, beri tahu client
+          if (needsElevation) {
+            socket.emit("ssh-data", `\r\n\x1b[31mError: Need sudo privileges to kill this process.\x1b[0m\r\n`);
+          }
+        } else {
+          console.log(`${socket.id}: Successfully killed process ${pid}`);
+          
+          // Verifikasi process sudah mati
+          cmdQueue.add({
+            connection,
+            command: `ps -p ${pid} > /dev/null 2>&1; echo $?`,
+            socketId: socket.id,
+            sessionId,
+            background: true,
+            callback: (checkResult) => {
+              const isKilled = !checkResult.error && checkResult.output.trim() !== "0";
+              
+              socket.emit("process-killed", { 
+                pid,
+                success: isKilled
+              });
+              
+              if (!isKilled) {
+                socket.emit("ssh-data", `\r\n\x1b[33mWarning: Process ${pid} may still be running.\x1b[0m\r\n`);
+              } else {
+                socket.emit("ssh-data", `\r\n\x1b[32mSuccess: Process ${pid} terminated.\x1b[0m\r\n`);
+              }
+              
+              // Minta refresh data process segera
+              cmdQueue.add({
+                connection,
+                command: "ps aux --sort=-%cpu | head -20",
+                socketId: socket.id,
+                sessionId,
+                background: true,
+                callback: (stats) => {
+                  if (!stats.error) {
+                    socket.emit("process-stats-update", { data: stats.output });
+                  }
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+    
+    return true; // Indicate we've handled this command
+  }
+  
+  return false; // Not a kill command
+};
